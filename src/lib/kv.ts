@@ -1,4 +1,3 @@
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
 
-// Central export so we can swap or mock if needed.
-export { kv };
+export const kv = Redis.fromEnv();

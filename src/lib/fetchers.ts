@@ -2,7 +2,9 @@ import { kv } from "./kv";
 import type { Member, Post, Project } from "./types";
 
 function kvReady() {
-  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+  return Boolean(
+    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  );
 }
 
 export async function getProjects(): Promise<Project[]> {
