@@ -21,7 +21,7 @@ export default async function BlogPage() {
         <div className="space-y-4">
           {posts.length === 0 && (
             <div className="card text-slate-400">
-              No posts yet. Seed KV with `blog:index` and `blog:post:{slug}`.
+              {"No posts yet. Seed KV with blog:index and blog:post:{slug}."}
             </div>
           )}
 

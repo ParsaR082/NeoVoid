@@ -4,7 +4,9 @@ import { NextResponse } from "next/server";
 export const runtime = "edge";
 
 export async function GET() {
-  const ids = await kv.zrange<string>("portfolio:index", 0, -1, { rev: true });
+  const ids = (await kv.zrange("portfolio:index", 0, -1, {
+    rev: true,
+  })) as string[];
   const items = ids.length
     ? await kv.mget(ids.map((id) => `portfolio:project:${id}`))
     : [];

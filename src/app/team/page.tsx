@@ -23,7 +23,7 @@ export default async function TeamPage() {
         <div className="space-y-3">
           {members.length === 0 && (
             <div className="card text-slate-400">
-              Coming soon. Seed KV with `team:index` and `team:member:{id}`.
+              {"Coming soon. Seed KV with team:index and team:member:{id}."}
             </div>
           )}
 

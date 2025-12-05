@@ -1,8 +1,15 @@
 import { kv } from "./kv";
 import type { Member, Post, Project } from "./types";
 
+function kvReady() {
+  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
 export async function getProjects(): Promise<Project[]> {
-  const ids = await kv.zrange<string>("portfolio:index", 0, -1, { rev: true });
+  if (!kvReady()) return [];
+  const ids = (await kv.zrange("portfolio:index", 0, -1, {
+    rev: true,
+  })) as string[];
   const items = ids.length
     ? await kv.mget(ids.map((id) => `portfolio:project:${id}`))
     : [];
@@ -10,12 +17,13 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export async function getPosts(limit?: number): Promise<Post[]> {
-  const ids = await kv.zrange<string>(
+  if (!kvReady()) return [];
+  const ids = (await kv.zrange(
     "blog:index",
     0,
     limit ? limit - 1 : -1,
     { rev: true }
-  );
+  )) as string[];
   const items = ids.length
     ? await kv.mget(ids.map((id) => `blog:post:${id}`))
     : [];
@@ -23,7 +31,8 @@ export async function getPosts(limit?: number): Promise<Post[]> {
 }
 
 export async function getTeam(): Promise<Member[]> {
-  const ids = await kv.zrange<string>("team:index", 0, -1);
+  if (!kvReady()) return [];
+  const ids = (await kv.zrange("team:index", 0, -1)) as string[];
   const items = ids.length
     ? await kv.mget(ids.map((id) => `team:member:${id}`))
     : [];
