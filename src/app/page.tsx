@@ -32,8 +32,14 @@ const links = [
 
 export default function Home() {
   const radius = 240;
-  const positioned = links.map((item, index) => {
-    const angle = (index / links.length) * 2 * Math.PI;
+  const layoutOrder = ["Contact", "Portfolio", "Blog", "Team", "About"];
+  const orderedLinks = layoutOrder
+    .map((name) => links.find((l) => l.title === name))
+    .filter(Boolean) as typeof links;
+
+  const positioned = orderedLinks.map((item, index) => {
+    // Rotate so "Contact" sits at 12 o'clock, then place others clockwise.
+    const angle = -Math.PI / 2 + (index / orderedLinks.length) * 2 * Math.PI;
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius;
     return { ...item, x, y };
@@ -84,7 +90,7 @@ export default function Home() {
           </div>
 
           <div className="mt-8 flex w-full flex-wrap justify-center gap-3 md:hidden">
-            {links.map((item) => (
+            {orderedLinks.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
