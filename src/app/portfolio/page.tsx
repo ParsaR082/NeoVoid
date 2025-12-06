@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const members = [
@@ -6,6 +7,14 @@ const members = [
     name: "Parsa",
     title: "Founder",
     blurb: "Designs and ships the Neovoid stack.",
+    image: "", // add image URL here (e.g., /parsa.jpg or https://...)
+  },
+  {
+    id: "mahdi",
+    name: "Mahdi",
+    title: "Co-Founder",
+    blurb: "Designs and ships the Neovoid stack.",
+    image: "", // add image URL here
   },
 ];
 
@@ -33,7 +42,19 @@ export default function PortfolioPage() {
               className="card group flex items-center gap-4"
             >
               <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-white/10 bg-white/5">
-                {/* Add your portrait here (e.g., next/image) */}
+                {member.image ? (
+                  <Image
+                    src={member.image}
+                    alt={`${member.name} portrait`}
+                    width={64}
+                    height={64}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-cyan-500/40 to-purple-600/40 text-lg font-semibold text-slate-100">
+                    {member.name.slice(0, 1)}
+                  </div>
+                )}
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
