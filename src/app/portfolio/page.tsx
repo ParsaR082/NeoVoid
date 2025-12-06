@@ -1,10 +1,15 @@
-import { getProjects } from "@/lib/fetchers";
+import Link from "next/link";
 
-export const revalidate = 30;
+const members = [
+  {
+    id: "parsa",
+    name: "Parsa",
+    title: "Founder",
+    blurb: "Designs and ships the Neovoid stack.",
+  },
+];
 
-export default async function PortfolioPage() {
-  const projects = await getProjects();
-
+export default function PortfolioPage() {
   return (
     <div className="bg-grid min-h-screen">
       <div className="mx-auto max-w-5xl px-6 py-16 space-y-8">
@@ -13,59 +18,35 @@ export default async function PortfolioPage() {
             Portfolio
           </p>
           <h1 className="text-3xl font-semibold text-slate-50">
-            Builds & Ops Consoles
+            Team Portfolios
           </h1>
           <p className="text-slate-400">
-            Selected work: edge tooling, dashboards, prototypes.
+            Choose a member to view their work and experiments.
           </p>
         </header>
 
         <div className="grid gap-4 md:grid-cols-2">
-          {projects.length === 0 && (
-            <div className="card text-slate-400">
-              No projects yet. Seed Vercel KV to populate the grid.
-            </div>
-          )}
-
-          {projects.map((item) => (
-            <article key={item.id} className="card space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="pill" aria-hidden />
-                  <h3 className="text-lg font-semibold text-slate-50">
-                    {item.title}
-                  </h3>
-                </div>
-                {item.status && (
-                  <span className="chip text-xs capitalize">{item.status}</span>
-                )}
+          {members.map((member) => (
+            <Link
+              key={member.id}
+              href={`/portfolio/${member.id}`}
+              className="card group flex items-center gap-4"
+            >
+              <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-white/10 bg-white/5">
+                {/* Add your portrait here (e.g., next/image) */}
               </div>
-              <p className="text-sm text-slate-400">{item.summary}</p>
-              {item.tech && (
-                <div className="flex flex-wrap gap-2 text-xs text-cyan-200">
-                  {item.tech.map((t) => (
-                    <span key={t} className="chip">
-                      {t}
-                    </span>
-                  ))}
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-slate-50">
+                    {member.name}
+                  </h3>
+                  <span className="chip text-xs">{member.title}</span>
                 </div>
-              )}
-              {item.links && (
-                <div className="flex flex-wrap gap-3 text-sm text-cyan-300">
-                  {Object.entries(item.links).map(([label, url]) => (
-                    <a
-                      key={label}
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="underline decoration-dotted underline-offset-4 hover:text-cyan-200"
-                    >
-                      {label}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </article>
+                <p className="text-sm text-slate-400 group-hover:text-slate-200">
+                  {member.blurb}
+                </p>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
