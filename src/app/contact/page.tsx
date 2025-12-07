@@ -3,7 +3,7 @@ export const metadata = {
 };
 
 const contacts = [
-  { label: "Email", value: "hello@neovoid.dev", href: "mailto:hello@neovoid.dev" },
+  { label: "Email", value: "neovoid.team@gmail.com", href: "mailto:neovoid.team@gmail.com" },
   { label: "X", value: "@neovoid", href: "https://x.com" },
   { label: "GitHub", value: "neovoid", href: "https://github.com" },
 ];
