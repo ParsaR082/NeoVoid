@@ -4,6 +4,11 @@ import { marked } from "marked";
 
 const POSTS_INDEX_KEY = "posts";
 
+function normalizeSlug(slug: string | undefined | null) {
+  if (!slug) return "";
+  return slug.toLowerCase().trim();
+}
+
 function validateSlug(slug: string) {
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
 }
@@ -21,24 +26,25 @@ export async function createPost(post: {
   content: string;
   date?: string;
 }) {
-  if (!validateSlug(post.slug)) {
+  const slug = normalizeSlug(post.slug);
+  if (!validateSlug(slug)) {
     throw new Error("Invalid slug format");
   }
   const date = post.date ?? new Date().toISOString();
   const meta: PostMeta = {
     title: post.title,
-    slug: post.slug,
+    slug,
     summary: post.summary,
     tags: post.tags,
     date,
     readingMinutes: readingTime(post.content),
   };
   const pipeline = kv.pipeline();
-  pipeline.set(`post:${post.slug}`, meta);
-  pipeline.set(`post:${post.slug}:content`, post.content);
+  pipeline.set(`post:${slug}`, meta);
+  pipeline.set(`post:${slug}:content`, post.content);
   pipeline.zadd(POSTS_INDEX_KEY, {
     score: Date.parse(date),
-    member: `post:${post.slug}`,
+    member: `post:${slug}`,
   });
   await pipeline.exec();
   return meta;
@@ -52,14 +58,15 @@ export async function updatePost(post: {
   content?: string;
   date?: string;
 }) {
-  if (!validateSlug(post.slug)) {
+  const slug = normalizeSlug(post.slug);
+  if (!validateSlug(slug)) {
     throw new Error("Invalid slug format");
   }
-  const existing = await kv.get<PostMeta>(`post:${post.slug}`);
+  const existing = await kv.get<PostMeta>(`post:${slug}`);
   if (!existing) throw new Error("Post not found");
   const content =
     post.content ??
-    (await kv.get<string>(`post:${post.slug}:content`)) ??
+    (await kv.get<string>(`post:${slug}:content`)) ??
     "";
   const next: PostMeta = {
     ...existing,
@@ -71,34 +78,36 @@ export async function updatePost(post: {
   };
 
   const pipeline = kv.pipeline();
-  pipeline.set(`post:${post.slug}`, next);
+  pipeline.set(`post:${slug}`, next);
   if (post.content !== undefined) {
-    pipeline.set(`post:${post.slug}:content`, content);
+    pipeline.set(`post:${slug}:content`, content);
   }
   pipeline.zadd(POSTS_INDEX_KEY, {
     score: Date.parse(next.date),
-    member: `post:${post.slug}`,
+    member: `post:${slug}`,
   });
   await pipeline.exec();
   return next;
 }
 
 export async function deletePost(slug: string) {
-  if (!validateSlug(slug)) throw new Error("Invalid slug format");
+  const s = normalizeSlug(slug);
+  if (!validateSlug(s)) throw new Error("Invalid slug format");
   const pipeline = kv.pipeline();
-  pipeline.del(`post:${slug}`);
-  pipeline.del(`post:${slug}:content`);
-  pipeline.zrem(POSTS_INDEX_KEY, `post:${slug}`);
+  pipeline.del(`post:${s}`);
+  pipeline.del(`post:${s}:content`);
+  pipeline.zrem(POSTS_INDEX_KEY, `post:${s}`);
   await pipeline.exec();
   return true;
 }
 
 export async function getPost(slug: string) {
-  if (!validateSlug(slug)) return null;
-  const meta = await kv.get<PostMeta>(`post:${slug}`);
+  const s = normalizeSlug(slug);
+  if (!s || !validateSlug(s)) return null;
+  const meta = await kv.get<PostMeta>(`post:${s}`);
   if (!meta) return null;
   const content =
-    (await kv.get<string>(`post:${slug}:content`)) ?? meta.content ?? "";
+    (await kv.get<string>(`post:${s}:content`)) ?? meta.content ?? "";
   const html = marked.parse(content) as string;
   const minutes = meta.readingMinutes ?? readingTime(content);
   return { ...meta, content, html, readingMinutes: minutes };
