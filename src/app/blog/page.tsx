@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { getPosts } from "@/lib/fetchers";
+import type { PostMeta } from "@/lib/types";
 
-export const revalidate = 60;
+export const revalidate = 30;
 
 export default async function BlogPage() {
   const posts = await getPosts();
@@ -21,21 +23,25 @@ export default async function BlogPage() {
         <div className="space-y-4">
           {posts.length === 0 && (
             <div className="card text-slate-400">
-              {"No posts yet. Seed KV with blog:index and blog:post:{slug}."}
+              No posts yet. Add posts from the admin panel.
             </div>
           )}
 
-          {posts.map((post) => (
-            <article key={post.id} className="card space-y-2">
+          {posts.map((post: PostMeta) => (
+            <Link
+              key={post.slug}
+              href={`/blog/${post.slug}`}
+              className="card space-y-2 block hover:border-cyan-400/50"
+            >
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-slate-50">
                   {post.title}
                 </h3>
                 <span className="text-xs text-slate-500">
-                  {new Date(post.publishedAt).toDateString()}
+                  {new Date(post.date).toDateString()}
                 </span>
               </div>
-              <p className="text-sm text-slate-400">{post.excerpt}</p>
+              <p className="text-sm text-slate-400">{post.summary}</p>
               {post.tags && (
                 <div className="flex flex-wrap gap-2 text-xs text-cyan-200">
                   {post.tags.map((tag) => (
@@ -45,7 +51,10 @@ export default async function BlogPage() {
                   ))}
                 </div>
               )}
-            </article>
+              <div className="text-xs text-slate-500">
+                ~{post.readingMinutes ?? 3} min read
+              </div>
+            </Link>
           ))}
         </div>
       </div>

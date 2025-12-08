@@ -31,3 +31,13 @@ export type Member = {
   order?: number;
   status?: string;
 };
+
+export type PostMeta = {
+  title: string;
+  slug: string;
+  summary: string;
+  date: string; // ISO string
+  tags: string[];
+  content?: string;
+  readingMinutes?: number;
+};
