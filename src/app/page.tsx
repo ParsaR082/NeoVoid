@@ -38,7 +38,7 @@ export default function Home() {
             </div>
           </div>
           {nodes.map((node) => (
-            <Link key={node.href} href={node.href} className="orbit-link" style={{ left: node.x, top: node.y, transform: "translate(-50%, -50%)" }}>
+            <Link key={node.href} href={node.href} className="orbit-link" style={{ left: node.x, top: node.y }}>
               <small>{node.meta}</small>
               <span className="font-medium">{node.title}</span>
               <small>{node.copy}</small>
