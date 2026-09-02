@@ -1,4 +1,4 @@
-import { kv } from "./kv";
+import { kv, kvConfigured } from "./kv";
 import type { PostMeta } from "./types";
 import { marked } from "marked";
 
@@ -14,8 +14,9 @@ function validateSlug(slug: string) {
 }
 
 function readingTime(text: string) {
-  const words = text.trim().split(/\s+/).length;
-  return Math.max(1, Math.ceil(words / 200));
+  const trimmed = text.trim();
+  if (!trimmed) return 1;
+  return Math.max(1, Math.ceil(trimmed.split(/\s+/).length / 200));
 }
 
 export async function createPost(post: {
@@ -26,6 +27,7 @@ export async function createPost(post: {
   content: string;
   date?: string;
 }) {
+  if (!kvConfigured || !kv) throw new Error("KV storage is not configured");
   const slug = normalizeSlug(post.slug);
   if (!validateSlug(slug)) {
     throw new Error("Invalid slug format");
@@ -58,6 +60,7 @@ export async function updatePost(post: {
   content?: string;
   date?: string;
 }) {
+  if (!kvConfigured || !kv) throw new Error("KV storage is not configured");
   const slug = normalizeSlug(post.slug);
   if (!validateSlug(slug)) {
     throw new Error("Invalid slug format");
@@ -67,6 +70,7 @@ export async function updatePost(post: {
   const content =
     post.content ??
     (await kv.get<string>(`post:${slug}:content`)) ??
+    existing.content ??
     "";
   const next: PostMeta = {
     ...existing,
@@ -91,6 +95,7 @@ export async function updatePost(post: {
 }
 
 export async function deletePost(slug: string) {
+  if (!kvConfigured || !kv) throw new Error("KV storage is not configured");
   const s = normalizeSlug(slug);
   if (!validateSlug(s)) throw new Error("Invalid slug format");
   const pipeline = kv.pipeline();
@@ -102,6 +107,7 @@ export async function deletePost(slug: string) {
 }
 
 export async function getPost(slug: string) {
+  if (!kvConfigured || !kv) return null;
   const s = normalizeSlug(slug);
   if (!s || !validateSlug(s)) return null;
   const meta = await kv.get<PostMeta>(`post:${s}`);
@@ -110,10 +116,17 @@ export async function getPost(slug: string) {
     (await kv.get<string>(`post:${s}:content`)) ?? meta.content ?? "";
   const html = marked.parse(content) as string;
   const minutes = meta.readingMinutes ?? readingTime(content);
-  return { ...meta, content, html, readingMinutes: minutes };
+  return {
+    ...meta,
+    tags: Array.isArray(meta.tags) ? meta.tags : [],
+    content,
+    html,
+    readingMinutes: minutes,
+  };
 }
 
 export async function getAllPosts() {
+  if (!kvConfigured || !kv) return [];
   const ids = (await kv.zrange(POSTS_INDEX_KEY, 0, -1, {
     rev: true,
   })) as string[];
