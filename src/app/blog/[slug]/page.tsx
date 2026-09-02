@@ -1,45 +1,33 @@
+import Link from "next/link";
 import { getPost } from "@/lib/blog";
 import { notFound } from "next/navigation";
+import { SiteNav } from "@/components/ui/SiteNav";
 
 export const revalidate = 30;
 export const dynamic = "force-dynamic";
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) return notFound();
 
   return (
-    <div className="bg-grid min-h-screen">
-      <div className="mx-auto max-w-4xl px-6 py-16">
-        <article className="space-y-8">
-          <header className="space-y-3">
-            <p className="text-sm uppercase tracking-[0.2em] text-cyan-300/80">
-              {post.tags.join(" · ")}
-            </p>
-            <h1 className="text-4xl font-semibold text-slate-50">
-              {post.title}
-            </h1>
-            <div className="flex items-center gap-4 text-sm text-slate-500">
-              <span>{new Date(post.date).toDateString()}</span>
-              <span>·</span>
-              <span>~{post.readingMinutes} min read</span>
+    <main className="bg-grid min-h-screen">
+      <SiteNav />
+      <div className="shell page">
+        <article className="mx-auto max-w-3xl">
+          <Link href="/blog" className="font-mono text-[10px] uppercase tracking-[.16em] text-slate-600 hover:text-cyan-300">← Back to notes</Link>
+          <header className="mt-12">
+            <div className="flex flex-wrap gap-2">{post.tags.map((tag) => <span key={tag} className="chip">{tag}</span>)}</div>
+            <h1 className="mt-5 text-4xl font-semibold tracking-tight text-slate-50 md:text-5xl">{post.title}</h1>
+            <div className="mt-5 flex gap-4 font-mono text-[10px] uppercase tracking-wider text-slate-600">
+              <span>{new Date(post.date).toLocaleDateString()}</span><span>·</span><span>{post.readingMinutes} min read</span>
             </div>
           </header>
-
-          <div className="relative">
-            <div className="absolute left-[-1.25rem] top-0 h-full w-px bg-gradient-to-b from-cyan-400 via-blue-500/60 to-transparent opacity-60" />
-            <div
-              className="prose prose-invert max-w-none prose-p:text-slate-200 prose-li:text-slate-200 prose-headings:text-slate-50 prose-strong:text-slate-50 prose-code:text-cyan-200"
-              dangerouslySetInnerHTML={{ __html: post.html ?? "" }}
-            />
-          </div>
+          <div className="mt-12 divider" />
+          <div className="prose mt-10" dangerouslySetInnerHTML={{ __html: post.html ?? "" }} />
         </article>
       </div>
-    </div>
+    </main>
   );
 }
