@@ -29,9 +29,7 @@ export async function createPost(post: {
 }) {
   if (!kvConfigured || !kv) throw new Error("KV storage is not configured");
   const slug = normalizeSlug(post.slug);
-  if (!validateSlug(slug)) {
-    throw new Error("Invalid slug format");
-  }
+  if (!validateSlug(slug)) throw new Error("Invalid slug format");
   const date = post.date ?? new Date().toISOString();
   const meta: PostMeta = {
     title: post.title,
@@ -44,10 +42,7 @@ export async function createPost(post: {
   const pipeline = kv.pipeline();
   pipeline.set(`post:${slug}`, meta);
   pipeline.set(`post:${slug}:content`, post.content);
-  pipeline.zadd(POSTS_INDEX_KEY, {
-    score: Date.parse(date),
-    member: `post:${slug}`,
-  });
+  pipeline.zadd(POSTS_INDEX_KEY, { score: Date.parse(date), member: `post:${slug}` });
   await pipeline.exec();
   return meta;
 }
@@ -62,16 +57,10 @@ export async function updatePost(post: {
 }) {
   if (!kvConfigured || !kv) throw new Error("KV storage is not configured");
   const slug = normalizeSlug(post.slug);
-  if (!validateSlug(slug)) {
-    throw new Error("Invalid slug format");
-  }
+  if (!validateSlug(slug)) throw new Error("Invalid slug format");
   const existing = await kv.get<PostMeta>(`post:${slug}`);
   if (!existing) throw new Error("Post not found");
-  const content =
-    post.content ??
-    (await kv.get<string>(`post:${slug}:content`)) ??
-    existing.content ??
-    "";
+  const content = post.content ?? (await kv.get<string>(`post:${slug}:content`)) ?? existing.content ?? "";
   const next: PostMeta = {
     ...existing,
     ...("title" in post ? { title: post.title ?? existing.title } : {}),
@@ -80,16 +69,10 @@ export async function updatePost(post: {
     date: post.date ?? existing.date,
     readingMinutes: readingTime(content),
   };
-
   const pipeline = kv.pipeline();
   pipeline.set(`post:${slug}`, next);
-  if (post.content !== undefined) {
-    pipeline.set(`post:${slug}:content`, content);
-  }
-  pipeline.zadd(POSTS_INDEX_KEY, {
-    score: Date.parse(next.date),
-    member: `post:${slug}`,
-  });
+  if (post.content !== undefined) pipeline.set(`post:${slug}:content`, content);
+  pipeline.zadd(POSTS_INDEX_KEY, { score: Date.parse(next.date), member: `post:${slug}` });
   await pipeline.exec();
   return next;
 }
@@ -110,35 +93,37 @@ export async function getPost(slug: string) {
   if (!kvConfigured || !kv) return null;
   const s = normalizeSlug(slug);
   if (!s || !validateSlug(s)) return null;
-  const meta = await kv.get<PostMeta>(`post:${s}`);
-  if (!meta) return null;
-  const content =
-    (await kv.get<string>(`post:${s}:content`)) ?? meta.content ?? "";
-  const html = marked.parse(content) as string;
-  const minutes = meta.readingMinutes ?? readingTime(content);
-  return {
-    ...meta,
-    tags: Array.isArray(meta.tags) ? meta.tags : [],
-    content,
-    html,
-    readingMinutes: minutes,
-  };
+  try {
+    const meta = await kv.get<PostMeta>(`post:${s}`);
+    if (!meta) return null;
+    const content = (await kv.get<string>(`post:${s}:content`)) ?? meta.content ?? "";
+    const html = marked.parse(content) as string;
+    return {
+      ...meta,
+      tags: Array.isArray(meta.tags) ? meta.tags : [],
+      content,
+      html,
+      readingMinutes: meta.readingMinutes ?? readingTime(content),
+    };
+  } catch (error) {
+    console.error(`Failed to load blog post: ${s}`, error);
+    return null;
+  }
 }
 
 export async function getAllPosts() {
   if (!kvConfigured || !kv) return [];
-  const ids = (await kv.zrange(POSTS_INDEX_KEY, 0, -1, {
-    rev: true,
-  })) as string[];
-  if (!ids.length) return [];
-  const metas = await kv.mget<PostMeta[]>(ids);
-  return metas.filter(Boolean) as PostMeta[];
+  try {
+    const ids = (await kv.zrange(POSTS_INDEX_KEY, 0, -1, { rev: true })) as string[];
+    if (!ids.length) return [];
+    const metas = await kv.mget<PostMeta[]>(ids);
+    return metas.filter(Boolean) as PostMeta[];
+  } catch (error) {
+    console.error("Failed to load all blog posts", error);
+    return [];
+  }
 }
 
 export function slugify(title: string) {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  return title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
