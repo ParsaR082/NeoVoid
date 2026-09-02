@@ -1,76 +1,42 @@
 import Image from "next/image";
 import Link from "next/link";
+import { SiteNav } from "@/components/ui/SiteNav";
 
 const members = [
-  {
-    id: "parsa",
-    name: "Parsa",
-    title: "Founder",
-    blurb: "Designs and ships the Neovoid stack.",
-    image: "", // add image URL here (e.g., /parsa.jpg or https://...)
-  },
-  {
-    id: "mahdi",
-    name: "Mahdi",
-    title: "Co-Founder",
-    blurb: "Designs and ships the Neovoid stack.",
-    image: "", // add image URL here
-  },
+  { id: "parsa", name: "Parsa", title: "Founder", blurb: "Full-stack development, product systems and the Neovoid stack.", image: "" },
+  { id: "mahdi", name: "Mahdi", title: "Co-Founder", blurb: "Building the team, ideas and systems behind the studio.", image: "" },
 ];
+
+export const metadata = { title: "Work — Neovoid" };
 
 export default function PortfolioPage() {
   return (
-    <div className="bg-grid min-h-screen">
-      <div className="mx-auto max-w-5xl px-6 py-16 space-y-8">
-        <header className="space-y-2">
-          <p className="text-sm uppercase tracking-[0.2em] text-cyan-300/80">
-            Portfolio
-          </p>
-          <h1 className="text-3xl font-semibold text-slate-50">
-            Team Portfolios
-          </h1>
-          <p className="text-slate-400">
-            Choose a member to view their work and experiments.
-          </p>
+    <main className="bg-grid min-h-screen">
+      <SiteNav />
+      <div className="shell page">
+        <header className="max-w-2xl">
+          <p className="eyebrow"><span className="status-dot" /> Selected work</p>
+          <h1 className="display">Built by<br /><span className="text-cyan-300">real humans.</span></h1>
+          <p className="lede">Explore the people, projects and technical experiments that make up Neovoid.</p>
         </header>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          {members.map((member) => (
-            <Link
-              key={member.id}
-              href={`/portfolio/${member.id}`}
-              className="card group flex items-center gap-4"
-            >
-              <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-white/10 bg-white/5">
-                {member.image ? (
-                  <Image
-                    src={member.image}
-                    alt={`${member.name} portrait`}
-                    width={64}
-                    height={64}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-cyan-500/40 to-purple-600/40 text-lg font-semibold text-slate-100">
-                    {member.name.slice(0, 1)}
-                  </div>
-                )}
+        <section className="mt-14 grid gap-4 md:grid-cols-2">
+          {members.map((member, index) => (
+            <Link key={member.id} href={`/portfolio/${member.id}`} className="card group min-h-72">
+              <div className="flex items-start justify-between">
+                <span className="font-mono text-xs text-slate-600">0{index + 1}</span>
+                <span className="text-slate-600 transition group-hover:text-cyan-300">↗</span>
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold text-slate-50">
-                    {member.name}
-                  </h3>
-                  <span className="chip text-xs">{member.title}</span>
+              <div className="mt-16 flex items-center gap-4">
+                <div className="h-14 w-14 overflow-hidden rounded-xl border border-white/10 bg-white/[.03]">
+                  {member.image ? <Image src={member.image} alt={`${member.name} portrait`} width={56} height={56} className="h-full w-full object-cover" /> : <div className="grid h-full w-full place-items-center font-mono text-lg text-cyan-300">{member.name[0]}</div>}
                 </div>
-                <p className="text-sm text-slate-400 group-hover:text-slate-200">
-                  {member.blurb}
-                </p>
+                <div><p className="text-xl font-semibold text-slate-100">{member.name}</p><p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-cyan-300/70">{member.title}</p></div>
               </div>
+              <p className="mt-5 text-sm leading-6 text-slate-500 transition group-hover:text-slate-400">{member.blurb}</p>
             </Link>
           ))}
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
