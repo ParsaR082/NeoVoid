@@ -1,101 +1,52 @@
-export const metadata = {
-  title: "About -- Neovoid",
-};
+import Link from "next/link";
+import { SiteNav } from "@/components/ui/SiteNav";
 
 const principles = [
-  {
-    title: "Simplicity",
-    body: "Technology should feel effortless. We strip away the unnecessary to build focused, minimal, intuitive experiences.",
-  },
-  {
-    title: "Intentional Design",
-    body: "Every detail matters -- from architecture to visuals -- so the whole feels unified and meaningful.",
-  },
-  {
-    title: "Constant Exploration",
-    body: "We never stop experimenting. Neovoid is a space for prototypes, ideas in motion, and digital worlds that do not exist yet.",
-  },
+  ["01", "Simplicity", "Technology should feel effortless. We remove the unnecessary so the important parts can breathe."],
+  ["02", "Intentionality", "Every decision has a reason — from architecture and interaction to the smallest visual detail."],
+  ["03", "Exploration", "We keep experimenting. Prototypes, tools, systems and ideas are all part of the process."],
 ];
 
-const focuses = [
-  "Web development and digital interfaces",
-  "Minimal UI/UX systems",
-  "Creative tools and micro-products",
-  "Concept-driven experiments",
-  "Team-driven collaborative projects",
-];
+export const metadata = { title: "About — Neovoid" };
 
 export default function AboutPage() {
   return (
-    <div className="bg-grid min-h-screen">
-      <div className="mx-auto max-w-4xl px-6 py-16 space-y-8">
-        <header className="space-y-3">
-          <p className="text-sm uppercase tracking-[0.2em] text-cyan-300/80">
-            About
-          </p>
-          <h1 className="text-4xl font-semibold text-slate-50">Neovoid</h1>
-          <p className="max-w-3xl text-slate-300">
-            Neovoid is a small, independent collective built to craft digital experiences that are clean,
-            thoughtful, and curious. We value exploration over perfection, learning over ego, and creativity over noise.
-          </p>
+    <main className="bg-grid min-h-screen">
+      <SiteNav />
+      <div className="shell page">
+        <header className="max-w-3xl">
+          <p className="eyebrow"><span className="status-dot" /> About Neovoid</p>
+          <h1 className="display">A quiet place<br />for <span className="text-cyan-300">good ideas.</span></h1>
+          <p className="lede">Neovoid is an independent collective built around a simple belief: digital products get better when technology, design and curiosity are given equal space.</p>
         </header>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          {principles.map((p) => (
-            <div key={p.title} className="card space-y-2">
-              <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">
-                {p.title}
-              </p>
-              <p className="text-sm text-slate-300">{p.body}</p>
-            </div>
+        <section className="mt-16 grid gap-4 md:grid-cols-3">
+          {principles.map(([num, title, body]) => (
+            <article key={num} className="card min-h-56">
+              <p className="font-mono text-xs text-slate-600">{num}</p>
+              <h2 className="mt-12 text-xl font-semibold text-slate-100">{title}</h2>
+              <p className="mt-3 text-sm leading-7 text-slate-400">{body}</p>
+            </article>
           ))}
         </section>
 
-        <section className="card space-y-3">
-          <h2 className="text-lg font-semibold text-slate-50">What We Do</h2>
-          <ul className="grid gap-2 sm:grid-cols-2 text-sm text-slate-300">
-            {focuses.map((item) => (
-              <li key={item} className="flex items-center gap-2">
-                <span className="pill" aria-hidden />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-2">
-          <div className="card space-y-2">
-            <h3 className="text-lg font-semibold text-slate-50">Vision</h3>
-            <p className="text-sm text-slate-300">
-              Grow Neovoid into a habitat that supports ideas of all sizes -- from small prototypes to long-term systems.
-              Build a calm digital ecosystem where creativity, design, and technology meet naturally.
-            </p>
+        <section className="mt-4 grid gap-4 md:grid-cols-[1.35fr_.65fr]">
+          <div className="card">
+            <p className="section-label">Our focus</p>
+            <div className="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+              {["Web applications", "Minimal UI systems", "Creative tools", "Digital experiments", "Full-stack systems", "Collaborative products"].map((item, i) => (
+                <div key={item} className="flex items-center gap-3 border-b border-white/5 pb-3 text-sm text-slate-300">
+                  <span className="font-mono text-[10px] text-cyan-400/70">0{i + 1}</span>{item}
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="card space-y-2">
-            <h3 className="text-lg font-semibold text-slate-50">Next</h3>
-            <p className="text-sm text-slate-300">
-              More public projects, a richer team section, refined blog and docs, new tools, and creative experiments.
-              The journey stays in motion.
-            </p>
-          </div>
-        </section>
-
-        <section className="card space-y-3">
-          <h3 className="text-lg font-semibold text-slate-50">Connect</h3>
-          <p className="text-sm text-slate-300">
-            Curious about our work or want to collaborate? Reach out. Neovoid is about people -- those who build with us,
-            and those who share the space we create.
-          </p>
-          <div className="flex flex-wrap gap-3 text-sm text-cyan-300">
-            <a
-              href="/contact"
-              className="chip text-xs hover:text-cyan-100 border-cyan-300/50 bg-cyan-300/10"
-            >
-              Contact
-            </a>
+          <div className="card flex flex-col justify-between">
+            <div><p className="section-label">Next</p><p className="mt-5 text-2xl font-semibold tracking-tight text-slate-100">Keep building. Keep learning.</p></div>
+            <Link href="/contact" className="mt-10 text-sm text-cyan-300 hover:text-cyan-200">Talk to us <span>↗</span></Link>
           </div>
         </section>
       </div>
-    </div>
+    </main>
   );
 }
