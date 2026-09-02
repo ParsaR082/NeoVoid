@@ -1,105 +1,60 @@
 import Link from "next/link";
-import { NeonDivider } from "@/components/ui/NeonDivider";
+import { SiteNav } from "@/components/ui/SiteNav";
 
-const links = [
-  {
-    href: "/portfolio",
-    title: "Portfolio",
-    copy: "Ops consoles, edge tools, prototypes.",
-  },
-  {
-    href: "/blog",
-    title: "Blog",
-    copy: "Build logs, field notes, technical rants.",
-  },
-  {
-    href: "/team",
-    title: "Team",
-    copy: "The humans behind Neovoid.",
-    note: "Soon",
-  },
-  {
-    href: "/about",
-    title: "About",
-    copy: "Why we exist; how we think.",
-  },
-  {
-    href: "/contact",
-    title: "Contact",
-    copy: "Ping us; low-friction comms.",
-  },
+const nodes = [
+  { href: "/portfolio", title: "Work", meta: "01", copy: "Products & systems", x: "50%", y: "4%" },
+  { href: "/blog", title: "Notes", meta: "02", copy: "Build logs", x: "88%", y: "35%" },
+  { href: "/team", title: "Team", meta: "03", copy: "People behind it", x: "76%", y: "83%" },
+  { href: "/about", title: "About", meta: "04", copy: "The thinking", x: "24%", y: "83%" },
+  { href: "/contact", title: "Contact", meta: "05", copy: "Open a channel", x: "12%", y: "35%" },
 ];
 
 export default function Home() {
-  const radius = 240;
-  const layoutOrder = ["Contact", "Portfolio", "Blog", "Team", "About"];
-  const orderedLinks = layoutOrder
-    .map((name) => links.find((l) => l.title === name))
-    .filter(Boolean) as typeof links;
-
-  const positioned = orderedLinks.map((item, index) => {
-    // Rotate so "Contact" sits at 12 o'clock, then place others clockwise.
-    const angle = -Math.PI / 2 + (index / orderedLinks.length) * 2 * Math.PI;
-    const x = Math.cos(angle) * radius;
-    const y = Math.sin(angle) * radius;
-    return { ...item, x, y };
-  });
-
   return (
-    <main className="min-h-screen bg-grid">
-      <div className="mx-auto flex max-w-6xl flex-col gap-12 px-6 py-16">
-        <header className="space-y-4 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-cyan-200/80">
-            <span className="pill" aria-hidden />
-            Neovoid Hub
+    <main className="bg-grid min-h-screen">
+      <SiteNav />
+      <div className="shell page">
+        <section className="grid items-end gap-8 md:grid-cols-[1fr_auto]">
+          <div>
+            <p className="eyebrow"><span className="status-dot" /> Independent digital studio</p>
+            <h1 className="display">We build in the<br /><span className="text-cyan-300">space between ideas.</span></h1>
+            <p className="lede">Neovoid is a small, independent collective focused on thoughtful interfaces, useful systems, and experiments worth shipping.</p>
           </div>
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-50 md:text-5xl">
-            Neovoid
-          </h1>
-          <p className="max-w-2xl text-slate-400">
-            A minimal, sci-fi operations hub. Fast, quiet, intentional.
-          </p>
-          <NeonDivider />
-        </header>
+          <div className="hidden pb-2 text-right md:block">
+            <p className="section-label">System status</p>
+            <p className="mt-2 font-mono text-xs text-slate-300">ONLINE / 2026</p>
+          </div>
+        </section>
 
-        <section className="relative mx-auto grid h-[28rem] w-full max-w-4xl place-items-center">
-          <div className="relative flex h-64 w-64 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-[0_0_80px_-30px_#22d3ee]">
-            <div className="text-6xl font-black tracking-[0.4em] text-slate-100">
-              N<span className="text-cyan-300">V</span>
+        <div className="mt-10 divider" />
+
+        <section className="hero-orbit" aria-label="Neovoid sections">
+          <div className="orbit-line" />
+          <div className="orbit-line two" />
+          <div className="hero-core">
+            <div className="text-center">
+              <div className="hero-logo">N<span>V</span></div>
+              <p className="mt-3 font-mono text-[9px] tracking-[.28em] text-slate-600">EXPLORE / BUILD / REPEAT</p>
             </div>
-            <div className="absolute inset-2 rounded-full border border-cyan-400/30 blur-[1px]" />
           </div>
+          {nodes.map((node) => (
+            <Link key={node.href} href={node.href} className="orbit-link" style={{ left: node.x, top: node.y, transform: "translate(-50%, -50%)" }}>
+              <small>{node.meta}</small>
+              <span className="font-medium">{node.title}</span>
+              <small>{node.copy}</small>
+            </Link>
+          ))}
+        </section>
 
-          <div className="absolute inset-0 hidden md:block">
-            {positioned.map((item, i) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="orbit-node group flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-white/10 text-center text-sm font-semibold text-slate-100 shadow-[0_0_30px_-18px_#22d3ee] backdrop-blur transition-transform duration-200 hover:-translate-y-2 hover:scale-105 hover:border-cyan-400/60 hover:bg-white/20 hover:shadow-[0_0_50px_-20px_#22d3ee]"
-                style={{
-                  // CSS custom props consumed by orbit-node class
-                  ["--x" as string]: `${item.x}px`,
-                  ["--y" as string]: `${item.y}px`,
-                  ["--delay" as string]: `${i * 0.25}s`,
-                }}
-              >
-                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_10px_#22d3ee]" />
-                <span className="leading-tight">{item.title}</span>
-              </Link>
-            ))}
+        <section className="grid gap-4 md:grid-cols-3">
+          <div className="card md:col-span-2">
+            <p className="section-label">What we care about</p>
+            <h2 className="mt-4 max-w-2xl text-2xl font-semibold tracking-tight text-slate-100">Less noise. Better systems. More room for curiosity.</h2>
           </div>
-
-          <div className="mt-8 flex w-full flex-wrap justify-center gap-3 md:hidden">
-            {orderedLinks.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="card flex-1 min-w-[140px] text-center text-sm font-semibold text-slate-100"
-              >
-                {item.title}
-              </Link>
-            ))}
-          </div>
+          <Link href="/contact" className="card group flex items-end justify-between">
+            <div><p className="section-label">Have an idea?</p><p className="mt-3 text-lg font-medium text-slate-100">Open a channel</p></div>
+            <span className="text-xl text-cyan-300 transition group-hover:translate-x-1">↗</span>
+          </Link>
         </section>
       </div>
     </main>
