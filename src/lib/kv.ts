@@ -1,9 +1,12 @@
 import { Redis } from "@upstash/redis";
 
-const url =
-  process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? "";
-const token =
-  process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN ?? "";
+const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? "";
+const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN ?? "";
 
-// Prefer explicit config, fallback to default env-based bootstrap.
-export const kv = url && token ? new Redis({ url, token }) : Redis.fromEnv();
+/**
+ * Vercel builds can render public/static pages without the optional KV service.
+ * Do not call Redis.fromEnv() when credentials are absent: it throws during
+ * module initialization and can turn otherwise unrelated pages into 500s.
+ */
+export const kvConfigured = Boolean(url && token);
+export const kv = kvConfigured ? new Redis({ url, token }) : null;
